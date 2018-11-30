@@ -14,6 +14,7 @@ function AppScheduler (loader, runtime) {
 
   this.appMap = {}
   this.appStatus = {}
+  this.appRuntimeInfo = {}
 }
 
 AppScheduler.status = {
@@ -22,6 +23,11 @@ AppScheduler.status = {
   running: 'running',
   destructing: 'destructing',
   exited: 'exited'
+}
+
+AppScheduler.modes = {
+  default: 'default',
+  test: 'test'
 }
 
 AppScheduler.prototype.isAppRunning = function isAppRunning (appId) {
@@ -36,7 +42,7 @@ AppScheduler.prototype.getAppStatusById = function getAppStatusById (appId) {
   return this.appStatus[appId] || AppScheduler.status.notRunning
 }
 
-AppScheduler.prototype.createApp = function createApp (appId) {
+AppScheduler.prototype.createApp = function createApp (appId, mode) {
   if (this.isAppRunning(appId)) {
     return Promise.resolve(this.getAppById(appId))
   }
@@ -47,6 +53,11 @@ AppScheduler.prototype.createApp = function createApp (appId) {
 
   var appType = this.loader.getTypeOfApp(appId)
   var metadata = this.loader.getAppManifest(appId)
+
+  if (AppScheduler.modes[mode] == null) {
+    mode = AppScheduler.modes.default
+  }
+  this.appRuntimeInfo[appId] = { type: appType, mode: mode }
 
   if (appType === 'light') {
     return lightApp(appId, metadata, this.runtime)
@@ -63,7 +74,7 @@ AppScheduler.prototype.createApp = function createApp (appId) {
   if (appType === 'exe') {
     future = executableProc(appId, metadata, this.runtime)
   } else {
-    future = extApp(appId, metadata, this.runtime)
+    future = extApp(appId, metadata, this.runtime, mode)
   }
 
   return future
@@ -97,6 +108,7 @@ AppScheduler.prototype.handleAppCreate = function handleAppCreate (appId, app) {
 AppScheduler.prototype.handleAppExit = function handleAppExit (appId, code, signal) {
   logger.info(`${appId} exited.`)
   delete this.appMap[appId]
+  delete this.appRuntimeInfo[appId]
   this.appStatus[appId] = AppScheduler.status.exited
   this.runtime.appGC(appId)
 

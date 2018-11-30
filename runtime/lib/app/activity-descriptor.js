@@ -456,35 +456,10 @@ Object.assign(ActivityDescriptor.prototype,
       type: 'method',
       returns: 'promise',
       fn: function voiceCommand (text, options) {
-        var isTriggered = _.get(options, 'isTriggered', false)
-        var self = this
-        if (!self._runtime.permission.check(self._appId, 'ACCESS_VOICE_COMMAND')) {
+        if (!this._runtime.permission.check(this._appId, 'ACCESS_VOICE_COMMAND')) {
           return Promise.reject(new Error('Permission denied.'))
         }
-        return Promise.resolve()
-          .then(() => {
-            var skillOption = JSON.stringify({
-              device: {
-                linkage: {
-                  trigger: isTriggered
-                }
-              }
-            })
-            self._runtime.flora.getNlpResult(text, skillOption, function (err, nlp, action) {
-              if (err) { throw err }
-              logger.info('get nlp result for asr', text, nlp, action)
-              /**
-               * retreat self-app into background, then promote the upcoming app
-               * to prevent self being destroy in stack preemption.
-               */
-              return self._runtime.life.setBackgroundById(self._appId)
-                .then(() => {
-                  return self._runtime.onVoiceCommand(text, nlp, action, {
-                    carrierId: self._appId
-                  })
-                })
-            })
-          })
+        return this._runtime.voiceCommand(text, Object.assign({}, options, { appId: this._appId }))
       }
     },
     /**

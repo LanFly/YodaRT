@@ -516,7 +516,8 @@ DBus.prototype.yodadebug = {
           monopolist: this.runtime.life.monopolist,
           appIdOnPause: this.runtime.life.appIdOnPause,
           cloudAppStack: this.runtime.domain,
-          appStatus: this.runtime.scheduler.appStatus
+          appStatus: this.runtime.scheduler.appStatus,
+          appRuntimeInfo: this.runtime.scheduler.appRuntimeInfo
         }
       }))
     }
@@ -542,6 +543,22 @@ DBus.prototype.yodadebug = {
         }
       })
       cb(null, JSON.stringify(ret))
+    }
+  },
+  LaunchApp: {
+    in: ['s', 's'],
+    out: ['s'],
+    fn: function LaunchApp (appId, mode, cb) {
+      logger.info('launch requested by dbus iface', appId, mode)
+      this.runtime.scheduler.suspendApp(appId, { force: true })
+        .then(() => this.runtime.scheduler.createApp(appId, mode))
+        .then(() => {
+          cb(null, JSON.stringify({ ok: true, result: { appId: appId, mode: mode } }))
+        })
+        .catch(err => {
+          logger.info('unexpected error on launch app', appId, mode, err.stack)
+          cb(null, JSON.stringify({ ok: false, message: err.message, stack: err.stack }))
+        })
     }
   },
   mockAsr: {
