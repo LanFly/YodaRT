@@ -6,7 +6,8 @@ var childProcess = require('child_process')
 var path = require('path')
 var logger = require('logger')('ext-app')
 var _ = require('@yoda/util')._
-var AppScheduler = require('../component/app-scheduler')
+
+var kAppModesTest = require('../../constants').AppScheduler.modes.test
 var ActivityDescriptor = require('./activity-descriptor').ActivityDescriptor
 var ActivityTestDescriptor = require('./activity-test-descriptor').ActivityTestDescriptor
 
@@ -23,7 +24,7 @@ module.exports = createExtApp
 function createExtApp (appId, metadata, runtime, mode) {
   var target = _.get(metadata, 'appHome')
   var descriptor = new ActivityDescriptor(appId, target, runtime)
-  if (mode === AppScheduler.modes.test) {
+  if (mode === kAppModesTest) {
     descriptor.test = new ActivityTestDescriptor(descriptor, appId, target, runtime)
   }
 
