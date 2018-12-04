@@ -221,8 +221,6 @@ LaVieEnPile.prototype.isMonopolized = function isMonopolized () {
  * @returns {Promise<AppDescriptor>}
  */
 LaVieEnPile.prototype.createApp = function createApp (appId) {
-  // Launch app
-  logger.info('app is not running, creating', appId)
   return this.scheduler.createApp(appId)
 }
 
