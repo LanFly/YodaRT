@@ -1,6 +1,6 @@
 
 /**
- * @namespace yodaRT.activity
+ * @namespace yodaRT.activity.test
  */
 
 var inherits = require('util').inherits
@@ -25,7 +25,7 @@ Object.assign(ActivityTestDescriptor.prototype,
   },
   {
     /**
-     * Send a voice command to the main process. It requires the permission `ACCESS_VOICE_COMMAND`.
+     * Send a voice command to the main process.
      *
      * @memberof yodaRT.activity.Activity
      * @instance
@@ -40,6 +40,16 @@ Object.assign(ActivityTestDescriptor.prototype,
         return this._runtime.voiceCommand(text, Object.assign({}, options, { appId: null }))
       }
     },
+    /**
+     * Send a nlp command to the main process.
+     *
+     * @memberof yodaRT.activity.Activity
+     * @instance
+     * @function voiceCommand
+     * @param {object} nlp - nlp command object.
+     * @param {object} action - parsed nlp command to be executed.
+     * @returns {Promise<void>}
+     */
     nlpCommand: {
       type: 'method',
       returns: 'promise',
