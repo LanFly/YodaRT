@@ -15,7 +15,7 @@ function AppScheduler (loader, runtime) {
 
   this.appMap = {}
   this.appStatus = {}
-  this.appRuntimeInfo = {}
+  this.appLaunchOptions = {}
 }
 
 AppScheduler.prototype.isAppRunning = function isAppRunning (appId) {
@@ -45,7 +45,7 @@ AppScheduler.prototype.createApp = function createApp (appId, mode) {
   if (Constants.modes[mode] == null) {
     mode = Constants.modes.default
   }
-  this.appRuntimeInfo[appId] = { type: appType, mode: mode }
+  this.appLaunchOptions[appId] = { type: appType, mode: mode }
 
   if (appType === 'light') {
     return lightApp(appId, metadata, this.runtime)
@@ -99,7 +99,7 @@ AppScheduler.prototype.handleAppCreate = function handleAppCreate (appId, app) {
 AppScheduler.prototype.handleAppExit = function handleAppExit (appId, code, signal) {
   logger.info(`${appId} exited.`)
   delete this.appMap[appId]
-  delete this.appRuntimeInfo[appId]
+  delete this.appLaunchOptions[appId]
   this.appStatus[appId] = Constants.status.exited
   this.runtime.appGC(appId)
 
